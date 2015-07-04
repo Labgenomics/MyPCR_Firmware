@@ -18,9 +18,6 @@
 
 //#define TESTER
 
-// YJ 130202
-#define FIRMWARE_VERSION	0x03
-
 typedef enum _RXINDEX 			//	Rx Buffer matching at index
 {								//  Used in PCR_Task.c
 	RX_CMD = 0x00,
@@ -131,7 +128,8 @@ typedef struct _PIDPARAM
 } PID_Param;
 
 //	Differential between Target and CurrentTemp ? 
-#define TARGETTEMP_DELTA			5.
+#define TARGETTEMP_DELTA			0.5
+#define HEATERTEMP_DELTA			5.0
 
 // Heater & Fan duration
 #define LID_HEATER_DURATION			10

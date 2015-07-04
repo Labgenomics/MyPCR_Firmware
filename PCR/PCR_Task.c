@@ -658,8 +658,4 @@ void Post_Process(void)
 	// Heatsink Temperature
 	ToSendDataBuffer[TX_SINKTEMPH] = Heatsink_Temp_H;
 	ToSendDataBuffer[TX_SINKTEMPL] = Heatsink_Temp_L;
-
-	// YJ 130202
-	// Firmware Version
-	ToSendDataBuffer[TX_VERSION] = FIRMWARE_VERSION;
 }

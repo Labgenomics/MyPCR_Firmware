@@ -133,14 +133,14 @@ void Temp_Run_Routine(void)
 
 		if( IsCoverHeated == FALSE )
 		{
-			if( Heater_Temper > Heater_Target - TARGETTEMP_DELTA ) // Delta is Defines
+			if( Heater_Temper > Heater_Target - HEATERTEMP_DELTA ) // Delta is Defines
 			{
 				IsChamberCtrl = TRUE;
 				IsCoverHeated = TRUE;
 			}
 		}
 		#else
-		if( Heater_Temper > 105 )
+		if( Heater_Temper > Heater_Target )
 		{
 			Heater_Temper = Heater_Temper - 0.5;
 			LID_Temp_H = (unsigned char)(int)Heater_Temper;
@@ -185,9 +185,9 @@ void Temp_Run_Routine(void)
 		#else
 
 		float target_temp = (float)Chamber_Target;
-		float d_t = Chamber_Target - target_temp;
+		float d_t = Chamber_Temper - target_temp;
 		if( d_t < 0.0 ) d_t = -d_t;
-		if( d_t < 5.0 )
+		if( d_t < TARGETTEMP_DELTA )
 		{
 			IsTargetArrived = TRUE;
 		}
