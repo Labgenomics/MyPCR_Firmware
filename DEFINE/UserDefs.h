@@ -150,7 +150,7 @@ typedef struct _PIDPARAM
 //	Temperature Limitness
 #define	LID_TEMP_LIMIT				120.
 #define CHM_TEMP_LIMIT				100.
-#define SINK_TEMP_LIMIT				80.
+#define SINK_TEMP_LIMIT				125.
 
 // TimeOut Value
 #define ARRIVAL_TIMEOUT			20000	//	YJ
