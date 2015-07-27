@@ -238,15 +238,7 @@ void Temp_Run_Routine(void)
  ***************************************************/
 void Temp_ErrorCheck(void)
 {
-	// Detect Sensor Error
-	if( (Heater_Temper < 0) || (Chamber_Temper < 0) || (Heatsink_Temper < 0) || (Heater_Temper > 128) || (Chamber_Temper > 128) || (Heatsink_Temper > 128 ) )
-	{
-		mLED_R_On();
-		Set_Heater_Duration(0);
-		Set_Chamber_Duration(0, 0);
-		Cur_State = STATE_STOP;
-		Fatal_Error = 255;
-	}
+	Fatal_Error = 0;
 
 	//	Error Protection
 	if( Heater_Temper > LID_TEMP_LIMIT )
@@ -255,7 +247,7 @@ void Temp_ErrorCheck(void)
 		Set_Heater_Duration(0);
 		Set_Chamber_Duration(0, 0);
 		Cur_State = STATE_STOP;
-		Fatal_Error++;
+		Fatal_Error += 1;
 	}
 	
 	//	Detect Chamber Error
@@ -265,7 +257,7 @@ void Temp_ErrorCheck(void)
 		Set_Heater_Duration(0);
 		Set_Chamber_Duration(0, 0);
 		Cur_State = STATE_STOP;
-		Fatal_Error = Fatal_Error + 2;
+		Fatal_Error += 2;
 	}
 
 	//	Detect Heatsink Error
@@ -275,7 +267,17 @@ void Temp_ErrorCheck(void)
 		Set_Heater_Duration(0);
 		Set_Chamber_Duration(0, 0);
 		Cur_State = STATE_STOP;
-		Fatal_Error = Fatal_Error + 4;
+		Fatal_Error += 4;
+	}
+
+	// Detect Sensor Error
+	if( (Heater_Temper < 0) || (Chamber_Temper < 0) || (Heatsink_Temper < 0) || (Heater_Temper > 128) || (Chamber_Temper > 128) || (Heatsink_Temper > 128 ) )
+	{
+		mLED_R_On();
+		Set_Heater_Duration(0);
+		Set_Chamber_Duration(0, 0);
+		Cur_State = STATE_STOP;
+		Fatal_Error += 8;
 	}
 }
 
