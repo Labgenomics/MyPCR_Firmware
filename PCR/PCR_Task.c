@@ -11,7 +11,8 @@
 #include "./DEFINE/UserDefs.h"
 #include "./PCR/PCR_Task.h"
 #include "./PCR/Temp_Ctrl.h"
-#include "./PCR/State.h"		
+#include "./PCR/State.h"
+#include "./USB/usb.h"	
 
 /** Variables **************************************/
 // Buffer
@@ -103,11 +104,15 @@ void Buffer_Copy(void)
 {
 	int i;
 
+	USBMaskInterrupts();
+
 	for(i=0; i<RX_BUFSIZE; i++)		//	Copy Buffer	only Rx
 		Rx_Buffer[i] = ReceivedDataBuffer[i];
 
 	// Set zero all buffer size
 	memset(ReceivedDataBuffer, 0, RX_BUFSIZE);	
+
+	USBUnmaskInterrupts();
 }
 
 /***************************************************
