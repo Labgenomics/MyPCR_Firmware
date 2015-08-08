@@ -181,7 +181,7 @@ ROM USB_DEVICE_DESCRIPTOR device_dsc=
     USB_EP0_BUFF_SIZE,          // Max packet size for EP0, see usb_config.h
     0x04D8,                 // Vendor ID
     0xFB76,                 // Product ID: Mouse in a circle fw demo
-    0x0304,                 // Device release number in BCD format(firmware version)
+    0x0305,                 // Device release number in BCD format(firmware version)
     0x01,                   // Manufacturer string index
     0x02,                   // Product string index
     0x03,                   // Device serial number string index

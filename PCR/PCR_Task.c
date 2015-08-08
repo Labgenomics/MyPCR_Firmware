@@ -150,15 +150,6 @@ void Pre_Process(void)
 		case CMD_STOP:		// Stop PWM
 			Stop_PWM_MODE();
 			break;
-		
-		case CMD_PARAM_WRITE:
-			Param_Write();
-			break;
-
-		case CMD_PARAM_END:
-			Write_Count = 0;
-			Cur_State = STATE_READY;
-			break;
 	}
 }
 
@@ -183,6 +174,10 @@ void Task_Write(void)
 	Task_Temp = Rx_Buffer[RX_TEMP];
 	Task_Time = Rx_Buffer[RX_TIMEH]*256 + Rx_Buffer[RX_TIMEL];
 	Het_Target_Temp = Rx_Buffer[RX_LIDTEMP];
+	Write_Count = Rx_Buffer[RX_CURRENT_ACT_NO];
+
+	if( Write_Count == -1 )
+		return;
 
 	// structure clear
 	if( Write_Count == 0 )
@@ -195,7 +190,6 @@ void Task_Write(void)
 	PCR_Task_Line[Write_Count].Label = Task_Label;
 	PCR_Task_Line[Write_Count].Temp = Task_Temp;
 	PCR_Task_Line[Write_Count].Time = Task_Time;
-	Write_Count++;
 }
 
 /***************************************************
@@ -207,7 +201,7 @@ void Task_Write(void)
  ***************************************************/
 void Task_Read(void)
 {
-	if( Total_ActLine <= 0 ) return;
+	if( Write_Count < 0 ) return;
 
 	Task_Label = PCR_Task_Line[Rx_Buffer[RX_REQLINE]].Label;
 	Task_Temp  = PCR_Task_Line[Rx_Buffer[RX_REQLINE]].Temp;
@@ -228,10 +222,10 @@ void Calc_Time(void)
 
 	if( IsRunning )
 		return;
+	else if( Total_ActLine != 0 )
+		return;
 
-	Total_ActLine = Write_Count;
-
-	Write_Count = 0;
+	Total_ActLine = Write_Count+1;
 
 	for(i=0; i<Total_ActLine; i++)
 	{
@@ -257,44 +251,6 @@ void Calc_Time(void)
 			}
 		}
 	}
-}
-
-/***************************************************
- * Function:        void Param_Write(void)
- *
- * OverView:		if Host is request the params, read param
- *
- * Note:			None
- ***************************************************/
-void Param_Write(void)
-{
-	int i;
-
-	PID_Start_Temp = Rx_Buffer[RX_START_TEMP];
-	PID_End_Temp = Rx_Buffer[RX_END_TEMP];
-
-	fptr = (unsigned char *)(&Param_P);
-	for(i=0; i<RX_PARAM_SIZE; i++)
-		*(fptr++) = Rx_Buffer[RX_PARAM_P + i];
-	
-	fptr = (unsigned char *)(&Param_I);
-	for(i=0; i<RX_PARAM_SIZE; i++)
-		*(fptr++) = Rx_Buffer[RX_PARAM_I + i];
-
-	fptr = (unsigned char *)(&Param_D);
-	for(i=0; i<RX_PARAM_SIZE; i++)
-		*(fptr++) = Rx_Buffer[RX_PARAM_D + i];
-
-	if( Write_Count == 0 )
-		memset(PCR_PID_Param, 0, sizeof(PCR_PID_Param[0]));
-
-	PCR_PID_Param[Write_Count].Start_Temp  	= PID_Start_Temp;
-	PCR_PID_Param[Write_Count].Target_Temp 	= PID_End_Temp;
-	PCR_PID_Param[Write_Count].Param_P 		= Param_P;
-	PCR_PID_Param[Write_Count].Param_I		= Param_I;
-	PCR_PID_Param[Write_Count].Param_D		= Param_D;
-
-	Write_Count++;
 }
 
 /***************************************************
@@ -483,7 +439,7 @@ void Reset_All_Values(void)
 	Task_Time = 0;
 	Het_Target_Temp = 0;
 	
-	Write_Count = 0;
+	Write_Count = -1;
 
 	Heater = 0x00;
 

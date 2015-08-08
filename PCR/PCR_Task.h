@@ -19,8 +19,6 @@ void Task_Read(void);
 
 void Calc_Time(void);		//	Calculation Time
 
-void Param_Write(void);		//	Command ParamWrite
-
 void Task_Control(void);	// Read the stored task and execute task.
 							// Called at every 1sec.
 

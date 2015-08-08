@@ -15,7 +15,7 @@ BOOL T1S_Flag = FALSE;
 
 unsigned char Rx_Buffer[RX_BUFSIZE];
 
-unsigned char Write_Count = 0;
+unsigned char Write_Count = -1;
 
 unsigned char Prev_State = 0x00;
 unsigned char Cur_State = STATE_READY;

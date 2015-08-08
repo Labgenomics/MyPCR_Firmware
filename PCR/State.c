@@ -36,7 +36,7 @@ void Process_Ready(void)
 			break;
 		case CMD_PARAM_WRITE:
 			Cur_State = STATE_PARAM_WRITE;
-			Write_Count = 0;
+			Write_Count = -1;
 			break;
 		case CMD_STOP:
 			Cur_State = STATE_READY;

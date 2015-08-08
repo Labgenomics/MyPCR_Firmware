@@ -22,16 +22,12 @@ typedef enum _RXINDEX 			//	Rx Buffer matching at index
 {								//  Used in PCR_Task.c
 	RX_CMD = 0x00,
 	RX_ACTNO,
-	RX_START_TEMP = 0x01,
 	RX_TEMP,
-	RX_END_TEMP = 0x02,
 	RX_TIMEH,
-	RX_PARAM_P = 0x03,
 	RX_TIMEL,
 	RX_LIDTEMP,
 	RX_REQLINE,
-	RX_PARAM_I,
-	RX_PARAM_D = 0x0B
+	RX_CURRENT_ACT_NO,	// for task write indexing
 } RXINDEX;
 
 typedef enum _TXINDEX			//	Tx Buffer matching at index
