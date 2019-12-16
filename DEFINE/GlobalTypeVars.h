@@ -14,6 +14,8 @@
 
 /** For Timer Flags ********************************/
 extern UINT T100MS_Counter;
+//KJD181124
+extern UINT tmpT100MS_Counter;
 extern UINT T1S_Counter;
 extern BOOL T100MS_Flag;
 extern BOOL T1S_Flag;
@@ -53,6 +55,12 @@ extern float Het_Target_Temp;
 extern unsigned char Chamber_Fan;		// neccessary change var name
 extern unsigned char System_Fan;
 extern BYTE Heater;
+
+//KJD181123
+extern float pre_convertTemp;
+extern int Left_SecTime;
+extern int Left_Sec_Total;
+
 
 /** Flags *******************************************/
 extern BOOL IsCoverCtrl;

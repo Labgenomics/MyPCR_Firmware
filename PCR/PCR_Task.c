@@ -303,6 +303,8 @@ void Task_Control(void)
 			Cur_Task_Line = PCR_Task_Line[Cur_Action_Number].Label;
 			
 			Pre_Chamber_Target = Chamber_Target;
+			//KJD181124
+			pre_convertTemp = Chamber_Temper;
 
 			Chamber_Target = (float)PCR_Task_Line[Cur_Action_Number].Temp;
 
@@ -315,6 +317,8 @@ void Task_Control(void)
 			
 			// Left time (sec)
 			Left_SecTime = (int)PCR_Task_Line[Cur_Action_Number].Time;
+			//KJD181123
+			Left_Sec_Total = Left_SecTime;
 
 			// Infinite mode
 			if( Left_SecTime == 0 ) IsTimeInfinite = TRUE;
@@ -466,7 +470,8 @@ void Find_PID_Params(void)
 
 	if( d_t < 0 )
 	{
-		Kp = 80; Ki = 0; Kd = 0;
+		Kp = 80; Ki = 0.; Kd = 0.;
+		//KJD Kp = 80; Ki = 0.; Kd = 500.;
 	}
 	else
 	{

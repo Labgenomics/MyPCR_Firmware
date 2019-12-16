@@ -16,7 +16,16 @@
 #define RX_PARAM_SIZE	4
 #define TX_PARAM_SIZE	4
 
-//#define TESTER
+// kdw : modified 
+#define TESTER			(0)		// Disable in Target environment	
+								// Enable in emulator.
+								
+// disable the system fan
+#define USE_SYSTEM_FAN	(0)
+
+// Fan algorithm applied
+#define FAN_ALGORITHM		(1)
+#define FAN_ALWAYS			(1)
 
 typedef enum _RXINDEX 			//	Rx Buffer matching at index
 {								//  Used in PCR_Task.c
@@ -126,6 +135,11 @@ typedef struct _PIDPARAM
 //	Differential between Target and CurrentTemp ? 
 #define TARGETTEMP_DELTA			0.5
 #define HEATERTEMP_DELTA			5.0
+//KJD181123  tube temperature IIR estimation
+#define RHOU							0.008
+#define RHOD							0.008
+#define REC_STEPS					100.
+
 
 // Heater & Fan duration
 #define LID_HEATER_DURATION			10
@@ -167,7 +181,8 @@ typedef struct _PIDPARAM
 #define SENSOR_CHAMBER			(0b00000100)
 #define SENSOR_HEATSINK			(0b00010000)
 
-#define TARGET_TEMP_INIT		25.
+// kdw : re-setup : 25 -> 30
+#define TARGET_TEMP_INIT		30.		// org : 25.
 
 typedef enum _OPRSTATE
 {

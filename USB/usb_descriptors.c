@@ -170,6 +170,25 @@ state according to the definition in the USB specification.
 #endif
 
 /* Device Descriptor */
+#if 0
+ROM USB_DEVICE_DESCRIPTOR device_dsc=
+{
+    0x12,    				// Size of this descriptor in bytes
+    USB_DESCRIPTOR_DEVICE,  // DEVICE descriptor type
+    0x0200,                 // USB Spec Release Number in BCD format
+    0x00,                   // Class Code
+    0x00,                   // Subclass code
+    0x00,                   // Protocol code
+    USB_EP0_BUFF_SIZE,      // Max packet size for EP0, see usb_config.h
+    0x04D8,                 // Vendor ID
+    0xFB76,                 // Product ID: Mouse in a circle fw demo
+    0x0305,                 // Device release number in BCD format(firmware version)
+    0x01,                   // Manufacturer string index
+    0x02,                   // Product string index
+    0x03,                   // Device serial number string index
+    0x01                    // Number of possible configurations
+};
+#else // 2017-12-05 :: for BioMedux myPCR :: by kdw
 ROM USB_DEVICE_DESCRIPTOR device_dsc=
 {
     0x12,    // Size of this descriptor in bytes
@@ -180,61 +199,62 @@ ROM USB_DEVICE_DESCRIPTOR device_dsc=
     0x00,                   // Protocol code
     USB_EP0_BUFF_SIZE,          // Max packet size for EP0, see usb_config.h
     0x04D8,                 // Vendor ID
-    0xFB76,                 // Product ID: Mouse in a circle fw demo
-    0x0305,                 // Device release number in BCD format(firmware version)
+    0xEF7F,                 // * Product ID: Mouse in a circle fw demo
+    0x0400,                 // * Device release number in BCD format(firmware version)
     0x01,                   // Manufacturer string index
     0x02,                   // Product string index
     0x03,                   // Device serial number string index
     0x01                    // Number of possible configurations
 };
+#endif
 
 /* Configuration 1 Descriptor */
 ROM BYTE configDescriptor1[]={
     /* Configuration Descriptor */
-    0x09,//sizeof(USB_CFG_DSC),    // Size of this descriptor in bytes
-    USB_DESCRIPTOR_CONFIGURATION,                // CONFIGURATION descriptor type
-    0x29,0x00,            // Total length of data for this cfg
-    1,                      // Number of interfaces in this cfg
-    1,                      // Index value of this configuration
-    0,                      // Configuration string index
+    0x09,							//sizeof(_USB_CONFIGURATION_DESCRIPTOR), Size of this descriptor in bytes 
+    USB_DESCRIPTOR_CONFIGURATION,   // CONFIGURATION descriptor type
+    0x29,0x00,            			// Total length of data for this cfg :: 41
+    1,                      		// Number of interfaces in this cfg
+    1,                      		// Index value of this configuration
+    0,                      		// Configuration string index
     _DEFAULT | _SELF,               // Attributes, see usb_device.h
-    50,                     // Max power consumption (2X mA)
+    50,                     		// Max power consumption (2X mA)
 							
     /* Interface Descriptor */
-    0x09,//sizeof(USB_INTF_DSC),   // Size of this descriptor in bytes
-    USB_DESCRIPTOR_INTERFACE,               // INTERFACE descriptor type
-    0,                      // Interface Number
-    0,                      // Alternate Setting Number
-    2,                      // Number of endpoints in this intf
-    HID_INTF,               // Class code
-    0,     // Subclass code
-    0,     // Protocol code
-    0,                      // Interface string index
+    0x09,							//sizeof(_USB_INTERFACE_DESCRIPTOR), Size of this descriptor in bytes
+    USB_DESCRIPTOR_INTERFACE,		// INTERFACE descriptor type
+    0,                      		// Interface Number
+    0,                      		// Alternate Setting Number
+    2,                      		// Number of endpoints in this intf
+    HID_INTF,               		// Class code
+    0,     							// Subclass code
+    0,     							// Protocol code
+    0,                      		// Interface string index
 
     /* HID Class-Specific Descriptor */
-    0x09,//sizeof(USB_HID_DSC)+3,    // Size of this descriptor in bytes
-    DSC_HID,                // HID descriptor type
-    0x11,0x01,                 // HID Spec Release Number in BCD format (1.11)
-    0x00,                   // Country Code (0x00 for Not supported)
-    HID_NUM_OF_DSC,         // Number of class descriptors, see usbcfg.h
-    DSC_RPT,                // Report descriptor type
-    HID_RPT01_SIZE,0x00,//sizeof(hid_rpt01),      // Size of the report descriptor
+    0x09,							//sizeof(_USB_HID_DSC)+3,    // Size of this descriptor in bytes
+    DSC_HID,                		// HID descriptor type
+    0x11,0x01,                 		// HID Spec Release Number in BCD format (1.11)
+    0x00,                   		// Country Code (0x00 for Not supported)
+    HID_NUM_OF_DSC,         		// Number of class descriptors, see usbcfg.h
+    DSC_RPT,                		// Report descriptor type
+    HID_RPT01_SIZE,0x00,			// sizeof(hid_rpt01),      // Size of the report descriptor
     
     /* Endpoint Descriptor */
-    0x07,/*sizeof(USB_EP_DSC)*/
-    USB_DESCRIPTOR_ENDPOINT,    //Endpoint Descriptor
-    HID_EP | _EP_IN,                   //EndpointAddress
-    _INTERRUPT,                       //Attributes
-    EP1_PACKET_SIZE,0x00,                  //size
-    EP1_IN_INTERVAL,            //Interval
+    0x07,							// sizeof(USB_EP_DSC)
+    USB_DESCRIPTOR_ENDPOINT,    	//Endpoint Descriptor
+    HID_EP | _EP_IN,                //EndpointAddress
+    _INTERRUPT,                     //Attributes
+    EP1_PACKET_SIZE,0x00,           //size
+    EP1_IN_INTERVAL,            	//Interval
 
     /* Endpoint Descriptor */
-    0x07,/*sizeof(USB_EP_DSC)*/
-    USB_DESCRIPTOR_ENDPOINT,    //Endpoint Descriptor
-    HID_EP | _EP_OUT,                   //EndpointAddress
-    _INTERRUPT,                       //Attributes
-    EP2_PACKET_SIZE,0x00,                  //size
-    EP2_OUT_INTERVAL                        //Interval
+    0x07,							// sizeof(USB_EP_DSC)
+    USB_DESCRIPTOR_ENDPOINT,    	//Endpoint Descriptor
+    HID_EP | _EP_OUT,               //EndpointAddress
+    _INTERRUPT,                     //Attributes
+    EP2_PACKET_SIZE,0x00,           //size
+    EP2_OUT_INTERVAL                //Interval
 };
 
 //Language code string descriptor
@@ -242,6 +262,7 @@ ROM struct{BYTE bLength;BYTE bDscType;WORD string[1];}sd000={
 sizeof(sd000),USB_DESCRIPTOR_STRING,{0x0409
 }};
 
+#if 0
 //Manufacturer string descriptor
 ROM struct{BYTE bLength;BYTE bDscType;WORD string[19];}sd001={
 sizeof(sd001),USB_DESCRIPTOR_STRING,
@@ -260,6 +281,38 @@ ROM struct{BYTE bLength;BYTE bDscType;WORD string[11];}sd003={
 sizeof(sd003),USB_DESCRIPTOR_STRING,
 {'M','y','P','C','R','3','3','3','3','3','3'
 }};	
+
+
+#else // 2017-12-05 :: for BioMeux myPCR :: by kdw
+
+//Manufacturer string descriptor
+ROM struct{BYTE bLength;BYTE bDscType;WORD string[16];}sd001={
+sizeof(sd001),USB_DESCRIPTOR_STRING,
+{'B','i','o','M','e','d','u','x',' ','C','o',',','L','T','d','.'
+}};
+
+//Product string descriptor
+ROM struct{BYTE bLength;BYTE bDscType;WORD string[16];}sd002={
+sizeof(sd002),USB_DESCRIPTOR_STRING,
+{'d','u','x','C','y','c','l','e','r',' ','S','y','s','t','e','m'
+}};
+
+#if 0
+//Device Serial Number String descriptor
+ROM struct{BYTE bLength;BYTE bDscType;WORD string[15];}sd003={
+sizeof(sd003),USB_DESCRIPTOR_STRING,
+{'d','u','x','C','y','c','l','e','r','0','0','0','1','2','3'
+}};	
+#else
+//Device Serial Number String descriptor
+ROM struct{BYTE bLength;BYTE bDscType;WORD string[11];}sd003={
+sizeof(sd003),USB_DESCRIPTOR_STRING,
+{'D','u','x','C','1','7','L','0','0','0','1'
+}};	
+#endif
+
+#endif
+
 
 /*
 //Manufacturer string descriptor

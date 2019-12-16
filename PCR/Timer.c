@@ -128,6 +128,7 @@ void timer0_isr(void)
 	}
 
 	// System Fan Control
+#if (USE_SYSTEM_FAN)
 	if( SystemFan_Count < (WORD)System_Fan || System_Fan == 0xff )
 	{
 		mSFan_On();
@@ -136,6 +137,7 @@ void timer0_isr(void)
 	{
 		mSFan_Off();
 	}
+#endif
 
 	Heater_Count++;
 	ChamberFan_Count++;

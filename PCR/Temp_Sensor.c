@@ -31,6 +31,7 @@ ROM BYTE *pTemp_Heater  = (ROM BYTE *)&NTC_HEATER_TABLE;
 void Convert_Temp(void)
 {
 	WORD index = 0x00;
+	float dispTemp;
 	// Heater
 	index = Read_Temp(HEATER_TEMP); index *= 2;
 	LID_Temp_H = pTemp_Heater[index];
@@ -42,6 +43,23 @@ void Convert_Temp(void)
 	Chamber_Temp_H = pTemp_Chamber[index];
 	Chamber_Temp_L = pTemp_Chamber[index+1];
 	Chamber_Temper = Chamber_Temp_H + Chamber_Temp_L * 0.1;
+	//KJD181123, 29, 30, 1206
+	if ( IsTargetArrived == FALSE ) {
+ 		if ( Pre_Chamber_Target > Chamber_Target ) //cooling target
+			 Chamber_Temper = RHOD*Chamber_Temper + (1-RHOD)*pre_convertTemp;
+		else Chamber_Temper = RHOU*Chamber_Temper + (1-RHOU)*pre_convertTemp;
+		pre_convertTemp = Chamber_Temper;
+		tmpT100MS_Counter = 0;
+	}
+	else {
+		float ss = (float) tmpT100MS_Counter * 1./REC_STEPS;
+		if ( ss < 1. ) Chamber_Temper = ss*Chamber_Temper + (1-ss)*pre_convertTemp;
+		tmpT100MS_Counter++;
+	}			
+	dispTemp = Chamber_Temper;
+	Chamber_Temp_H = (int) dispTemp; //for display temeprature
+	Chamber_Temp_L = (int) ((dispTemp -(float) Chamber_Temp_H)*10); 
+	//KJD181129}
 
 	// HeatSink
 	index = Read_Temp(HEATSINK_TEMP); index *= 2;

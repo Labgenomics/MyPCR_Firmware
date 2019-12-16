@@ -11,9 +11,11 @@
 #include "./PCR/Temp_Ctrl.h"
 #include "./PCR/Temp_Sensor.h"
 
-#if defined(TESTER)
+
+#if (TESTER || FAN_ALGORITHM)
 	#include <math.h>
 #endif
+
 
 /** Variables **************************************/
 // Duration Value
@@ -65,17 +67,23 @@ void Init_Temp_Control(void)
 void Temp_Control(void)
 {
 	// Get Temperature by Temperature table.
-	#if !defined(TESTER)
+	#if (TESTER == 0)
 		Convert_Temp();
 	#endif
 
+#if (FAN_ALWAYS)
+	Chamber_Fan_Duration = 100;
+#else
 	// Chamber Fan Control
 	Get_ChamberFan_Duration(Chamber_Temper);
+#endif
 	Set_ChamberFan_Duration(Chamber_Fan_Duration);
 
 	// System Fan Control
+#if (USE_SYSTEM_FAN)	
 	Get_SystemFan_Duration(Heatsink_Temper);
 	Set_SystemFan_Duration(System_Fan_Duration);
+#endif
 
 	// Adding the Errorcheck for all routine
 	// 130729 YJ
@@ -85,7 +93,7 @@ void Temp_Control(void)
 	switch(Cur_State)
 	{
 		case STATE_READY:
-			#if defined(TESTER)
+#if (TESTER)
 			Heater_Temper = 25.;
 			Chamber_Temper = 25.;
 
@@ -93,7 +101,7 @@ void Temp_Control(void)
 			LID_Temp_L = 1;
 			Chamber_Temp_H = 25;
 			Chamber_Temp_L = 2;
-			#endif
+#endif
 			return;
 		case STATE_RUN:		// Valid Section
 			Temp_Run_Routine();
@@ -117,7 +125,7 @@ void Temp_Run_Routine(void)
 	// LID Heater Temperature Control
 	if( IsCoverCtrl == TRUE )
 	{
-		#if !defined(TESTER)
+#if (TESTER == 0)
 		if( Chamber_Target < HEATEROFF_TEMP)
 		{
 			Set_Heater_Duration(0);
@@ -139,7 +147,7 @@ void Temp_Run_Routine(void)
 				IsCoverHeated = TRUE;
 			}
 		}
-		#else
+#else
 		if( Heater_Temper > Heater_Target )
 		{
 			Heater_Temper = Heater_Temper - 0.5;
@@ -154,7 +162,7 @@ void Temp_Run_Routine(void)
 			LID_Temp_H = (unsigned char)(int)Heater_Temper;
 		}
 
-		#endif
+#endif
 
 		Set_Chamber_Duration(PWM_Dir, 0);
 	}
@@ -172,7 +180,7 @@ void Temp_Run_Routine(void)
 	// Chamber Temperature Control
 	if( IsChamberCtrl == TRUE )
 	{
-		#if !defined(TESTER)
+#if (TESTER == 0)
 
 		float target_temp = (float)Chamber_Target;
 		float d_t = Chamber_Temper - target_temp;
@@ -182,7 +190,7 @@ void Temp_Run_Routine(void)
 		if( d_t < TARGETTEMP_DELTA )
 			IsTargetArrived = TRUE;
 
-		#else
+#else
 
 		float target_temp = (float)Chamber_Target;
 		float d_t = Chamber_Temper - target_temp;
@@ -200,24 +208,24 @@ void Temp_Run_Routine(void)
 		}
 		Chamber_Temp_H = (unsigned char)(int)Chamber_Temper;
 
-		#endif
+#endif
 
 		Get_Chamber_Duration(Chamber_Temper);
 		Set_Chamber_Duration(PWM_Dir, PWM_Duration);
 	}
 	else
 	{
-		#if !defined(TESTER)
+#if (TESTER == 0)
 
 		Stop_PWM_MODE();
 
-		#else
+#else
 
 		float u = (float)rand() / (RAND_MAX + 1) * 2.0 + -1.0;
 		Heater_Temper = 25.0 + 0.2*cos(u);
 		Chamber_Temper = 25.0 + 0.1*sin(u);
 
-		#endif
+#endif
 	}
 
 	// Check Refrigirator State
@@ -288,6 +296,25 @@ void Temp_ErrorCheck(void)
  *
  * Note:			None
  ***************************************************/
+#if (FAN_ALGORITHM)
+void Get_ChamberFan_Duration(float temp)	// Tc : T of current chamber
+{
+	float deltaT = 0.;
+	
+	if(temp < Chamber_Target) 			// Tc < Tct : if current T is lower than chamber target T, fan off
+		Chamber_Fan_Duration = 0;
+	else								// Tc >= Tct: if current T is higher than chamber target T, fan fully on 
+		Chamber_Fan_Duration = 100;
+
+	if(Chamber_Target > HEATEROFF_TEMP)				
+	{
+		deltaT = fabs((temp - Chamber_Target));
+		if(deltaT < 1.0) 
+			Chamber_Fan_Duration = 50;
+	}		
+}
+
+#else
 void Get_ChamberFan_Duration(float temp)
 {
 	if( temp < CHMFAN_TEMP_DURATION_0 ) Chamber_Fan_Duration = 0;
@@ -299,7 +326,7 @@ void Get_ChamberFan_Duration(float temp)
 	if( Chamber_Fan_Duration > 100 ) Chamber_Fan_Duration = 100;
 	else if( Chamber_Fan_Duration < 0 ) Chamber_Fan_Duration = 0;
 }
-
+#endif
 /***************************************************
  * Function:        void Set_ChamberFan_Duration(float duration)
  *
@@ -320,6 +347,7 @@ void Set_ChamberFan_Duration(float duration)
 	Chamber_Fan = (BYTE)(nPwm&0x00FF);
 }
 
+#if (USE_SYSTEM_FAN)	
 /***************************************************
  * Function:        void Get_SystemFan_Duration(float temp)
  *
@@ -357,6 +385,8 @@ void Set_SystemFan_Duration(float duration)
 
 	System_Fan = (BYTE)(nPwm);	
 }
+#endif
+
 
 /***************************************************
  * Function:        void Get_Heater_Duration(float targetTemp, float curTemp, float *duration)
@@ -416,8 +446,89 @@ void Set_Heater_Duration(float duration)
  *
  * OverView:		Get Chamber duration by chamber temperature
  *
+ * Input : 			Current Chamber Temperature
+ *
  * Note:			None
  ***************************************************/
+#if 1 
+float make_boundary(float fValue, float fBase)
+{
+	if(fValue > fBase)			return fBase;
+	else if(fValue < -fBase)	return -fBase;
+	return fValue;
+}
+void Get_Chamber_Duration(float temp)
+{
+	float diffT; 
+	float Integral, Derivative;
+	float out = 0.;
+
+	// Calculate PID
+	diffT = Chamber_Target - temp;		// difference of Tc & Tct
+	
+	Integral = make_boundary((diffT + Chamber_LastIntegral), 100.0);
+	Derivative = diffT - Chamber_LastErr;
+
+	out = (Kp * diffT) + (Ki * Integral) + (Kd * Derivative);
+
+	// Get Absolute PWM Duration
+	PWM_Duration = fabs(make_boundary(out, 99.0));
+
+// PWM ALGORITHM //
+/*
+	1. If Tct is lower than HEATEROFF_TEMP(10) &
+	2. deltaT of Tc and Th is larger than 60C
+	3. PWM_Duration is divided by 2
+*/	
+	{
+		float deltaT = fabs((Chamber_Temper - Heatsink_Temper));
+		if(Chamber_Target < HEATEROFF_TEMP)
+		{
+			if(deltaT > 60.0)
+				PWM_Duration /= 2;
+		}
+
+	}
+
+	
+	// Get Direction
+	if( out < 0.0 ) PWM_Dir = 1;	// increase direction
+	else PWM_Dir = 0;				// decrease direction
+
+
+	Chamber_LastErr = diffT;			// save difference
+	Chamber_LastIntegral = Integral;	// save integral
+}
+
+/***************************************************
+ * Function:        void Set_Chamber_Duration(int dir, float duration)
+ *
+ * OverView:		Set PWM value By chamber duration.
+ *
+ * Note:			None
+ ***************************************************/
+void Set_Chamber_Duration(int dir, float duration)
+{
+	float PWM_MAX = CHAMBER_PWM_MAX;	// = 1023.0
+	float pwm = 0;
+	int nPwm = 0;
+
+	pwm = duration/100. * PWM_MAX;
+	nPwm = (int)pwm; 	// boundary condition is already checked
+
+	if( dir < 1 ) nPwm = (int)PWM_MAX - nPwm;
+	
+	PWM_L = (BYTE)nPwm;
+	PWM_H = (BYTE)(nPwm>>8);
+
+	CCPR1L = (BYTE)(nPwm>>2);
+	CCP1CON = ((CCP1CON&0xCF) | (BYTE)((nPwm&0x03)<<4));
+
+	// polar is config PWM Port.
+	Switch_PWM_Port(dir);
+}
+
+#else
 void Get_Chamber_Duration(float temp)
 {
 	float currentErr = 0.;
@@ -427,7 +538,8 @@ void Get_Chamber_Duration(float temp)
 	float out = 0.;
 	float IntPart = 0.;
 
-	currentErr = Chamber_Target - temp;
+	// Calculate PID
+	currentErr = Chamber_Target - temp;		
 	Proportional = Kp * currentErr;
 
 	Integral = currentErr + Chamber_LastIntegral;
@@ -440,20 +552,20 @@ void Get_Chamber_Duration(float temp)
 
 	out = (Proportional + IntPart + Derivative);
 
-	// Out Limits
+	// Get PWM Duration
 	if( out > 99.0 ) PWM_Duration = 99;
 	else if( out < -99.0) PWM_Duration = -99;
 	else PWM_Duration = out;
 
-	if( out < 0.0 ) PWM_Dir = 1;
-	else PWM_Dir = 0;
+	// Get Direction
+	if( out < 0.0 ) PWM_Dir = 1;	
+	else PWM_Dir = 0;				
 
 	if( PWM_Duration < 0.0 ) PWM_Duration = -PWM_Duration;
 
-	Chamber_LastErr = currentErr;
-	Chamber_LastIntegral = Integral;
+	Chamber_LastErr = currentErr;		
+	Chamber_LastIntegral = Integral;	
 }
-
 /***************************************************
  * Function:        void Set_Chamber_Duration(int dir, float duration)
  *
@@ -484,4 +596,6 @@ void Set_Chamber_Duration(int dir, float duration)
 	// polar is config PWM Port.
 	Switch_PWM_Port(dir);
 }
+
+#endif
 

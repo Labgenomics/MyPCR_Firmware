@@ -1,5 +1,47 @@
 # MyPCR_Firmware
 
+
+
+			|-------s---|		--> lid heater sensor : Tl
+			|-----------|
+			|	25 wells	|
+			|-------s---|		--> chamber sensor	: Tc = Tcc
+			|	Peltier		|
+			|-----------|
+			|	Aluminum	|
+			|-------s---|		--> heat sink sensor : Th
+			| Heat Sink	|
+			|-----------|
+			|		FAN			|
+			|-----------|
+											--> Chamber Target Temperature :Tct
+											--> Current Temperature : Tcc (current chamber Temperature)
+
+I. Fan 구동 Algorithm
+		Tt > Tcc : Off
+		Tt < Tcc : FULL
+		Tt ~= Tcc : HALF
+			
+II. Peltier 구동 Algorithm
+
+		Tt > Tcc : FULL
+		Tt < Tcc : dT = abs|Th - Tcc|
+							 dT < 60 : Full
+							 dT >= 60 : Half
+							 	
+	
+
+
+
+
+
+
+
+
+
+
+
+
 - v3.4 release note
 
 >현재 heat sink sensor가 peltier와 spacer 사이에 있음 (예전에는 heat sink와 space사이에 있었음) 으로 해서

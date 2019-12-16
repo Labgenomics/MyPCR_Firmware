@@ -9,6 +9,8 @@
 
 /** Define Extern Variables ********************/
 UINT T100MS_Counter = 0x00;
+//KJD181124
+UINT tmpT100MS_Counter = 0x00;
 UINT T1S_Counter = 0x00;
 BOOL T100MS_Flag = FALSE;
 BOOL T1S_Flag = FALSE;
@@ -29,19 +31,24 @@ unsigned char Chamber_Temp_L = 0x00;
 unsigned char Heatsink_Temp_H = 0x00;
 unsigned char Heatsink_Temp_L = 0x00;
 
-float Heater_Temper = 0.;
-float Chamber_Temper = 0.;
-float Heatsink_Temper = 0.;
+float Heater_Temper = 0.;						// Tl : Temperature of Lid Heater
+float Chamber_Temper = 0.;						// Tc : T of chamber = Tcc (Current chamber Temperature)
+float Heatsink_Temper = 0.;						// Th : T of Heatsink
 
 float Pre_Chamber_Target = TARGET_TEMP_INIT;
-float Chamber_Target = TARGET_TEMP_INIT;		// 25
-float Heater_Target = 0.;
+float Chamber_Target = TARGET_TEMP_INIT;		// Tct : T of chamber target
+float Heater_Target = 0.;						
 
-float Het_Target_Temp = 0.;
+float Het_Target_Temp = 0.;						
 
 unsigned char Chamber_Fan = 0x00;
 unsigned char System_Fan = 0x00;
 BYTE Heater = 0x00;
+
+//KJD181123
+float pre_convertTemp = 0.;
+int Left_Sec_Total = 0;
+
 
 BOOL IsCoverCtrl = FALSE;
 BOOL IsChamberCtrl = FALSE;

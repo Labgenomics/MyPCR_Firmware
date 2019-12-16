@@ -270,7 +270,6 @@
  	#define mCFan_On()         mCFan = 1;  //n-mos:1 p-mos:0
     #define mCFan_Off()        mCFan = 0;  //n-mos:0 p-mos:1
 
-	/**chamber fan ************************************************************/
 	//#define InitFan()		TRISC &= 0xBF; LATCbits.LATC6=1;		// 130312 YJ
 	#define Init_SystemFan()		TRISDbits.TRISD3 = OUTPUT_PIN; LATDbits.LATD3=0;
 	#define mSFan 		LATDbits.LATD3
